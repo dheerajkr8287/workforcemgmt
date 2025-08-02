@@ -1,0 +1,78 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.0'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.railse.hiring'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+	targetCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot Starters
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Lombok - with proper version compatibility
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+	// MapStruct - for mapping between DTOs and entities
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	// Jackson for JSON processing (already included in spring-boot-starter-web)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	// SLF4J Logging (already included in Spring Boot)
+	implementation 'org.slf4j:slf4j-api'
+
+	// Development tools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Test dependencies
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok:1.18.30'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+// Configure annotation processing order to avoid conflicts
+tasks.withType(JavaCompile) {
+	options.annotationProcessorPath = configurations.annotationProcessor
+}
+
+// Ensure proper compilation order for MapStruct and Lombok
+compileJava {
+	options.compilerArgs += [
+			'-Amapstruct.defaultComponentModel=spring',
+			'-Amapstruct.unmappedTargetPolicy=IGNORE'
+	]
+}
+
+test {
+	useJUnitPlatform()
+}
+
+// Task to display project info
+task projectInfo {
+	doLast {
+		println "Project: $project.name"
+		println "Version: $project.version"
+		println "Java Version: ${java.sourceCompatibility}"
+		println "Spring Boot Version: ${dependencyManagement.importedProperties['spring-boot.version']}"
+	}
+}
